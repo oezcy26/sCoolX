@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">LearningAndroid</string>
+
+    <string name="title_activity_main">Schulfächer</string>
+
+    <string name="hint_newsubject">Neues Fach..</string>
+    <string name="button_save">Speichern</string>
+    <string name="title_activity_newsubject">Neues Fach</string>
+</resources>

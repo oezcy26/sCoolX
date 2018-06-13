@@ -1,0 +1,8 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="row_margin">2dip</dimen>
+    <dimen name="text_size">20sp</dimen>
+    <dimen name="cell_sidepadding">5dip</dimen>
+    <dimen name="cell_padding">8dip</dimen>
+</resources>
