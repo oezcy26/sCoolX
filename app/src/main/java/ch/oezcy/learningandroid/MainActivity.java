@@ -1,6 +1,8 @@
 package ch.oezcy.learningandroid;
 
+import android.arch.persistence.room.Room;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -11,16 +13,27 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import ch.oezcy.learningandroid.db.SchoolXDatabase;
+import ch.oezcy.learningandroid.db.entity.Subject;
+
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_NEWSUBJECT = 1;
     public static final String RESULT_NEWSUBJECT = "ch.oezcy.learningApp.newsubjReply";
 
     private TableLayout table_subject;
+    public static SchoolXDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        db = Room.databaseBuilder(getApplicationContext(),
+                SchoolXDatabase.class, "schoolx").build();
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -32,13 +45,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                startNewSubjectActivity();
-
-
                /* Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                         */
             }
         });
+
+        try {
+            List<Subject> subjects = new SubjectAllSelector().execute().get();
+            for(Subject s : subjects){
+                addNewTablerow(s);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -47,8 +70,10 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == REQUEST_NEWSUBJECT && resultCode==RESULT_OK){
-            String newsubject = data.getStringExtra(RESULT_NEWSUBJECT);
-            addNewTablerow(newsubject);
+            String newSubjectName = data.getStringExtra(RESULT_NEWSUBJECT);
+            Subject subj = new Subject(newSubjectName);
+            addNewTablerow(subj);
+            new SubjectInserter().execute(new Subject(newSubjectName));
 
         }
     }
@@ -59,11 +84,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void addNewTablerow(String newsubject) {
+    private void addNewTablerow(Subject subject) {
         TableRow tableRow = (TableRow) LayoutInflater.from(this).inflate(R.layout.tablerow_subject, null);
-        ((TextView)tableRow.findViewById(R.id.tablerow_subject_name)).setText(newsubject);
+        ((TextView)tableRow.findViewById(R.id.tablerow_subject_name)).setText(subject.title);
         table_subject.addView(tableRow);
 
+    }
+
+    private class SubjectInserter extends AsyncTask<Subject, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Subject... subjects) {
+            db.subjectDao().insert(subjects[0]);
+            return null;
+        }
+    }
+
+    private class SubjectAllSelector extends AsyncTask<Void, Void, List<Subject>>{
+
+        @Override
+        protected List<Subject> doInBackground(Void... voids) {
+            List<Subject> subjects = db.subjectDao().selectAllSubjects();
+            return subjects;
+        }
     }
 
 }
