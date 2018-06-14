@@ -6,4 +6,5 @@
     <string name="hint_newsubject">Neues Fach..</string>
     <string name="button_save">Speichern</string>
     <string name="title_activity_newsubject">Neues Fach</string>
+    <string name="menu_subject_delete">Löschen</string>
 </resources>

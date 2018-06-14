@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -78,6 +81,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.subject_contextmenu, menu);
+
+        //TODO getTag from v , then store as field-variable to get in onContextItemSelected (unten). dort dann löschen
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        return super.onContextItemSelected(item);
+    }
+
     private void startNewSubjectActivity(){
         Intent intent = new Intent(this, NewSubjectActivity.class);
         startActivityForResult(intent, REQUEST_NEWSUBJECT);
@@ -87,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
     private void addNewTablerow(Subject subject) {
         TableRow tableRow = (TableRow) LayoutInflater.from(this).inflate(R.layout.tablerow_subject, null);
         ((TextView)tableRow.findViewById(R.id.tablerow_subject_name)).setText(subject.title);
+        tableRow.setTag(subject);
+        registerForContextMenu(tableRow);
         table_subject.addView(tableRow);
 
     }
