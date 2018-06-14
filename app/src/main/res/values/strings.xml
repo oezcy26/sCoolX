@@ -1,9 +1,11 @@
 <resources>
-    <string name="app_name">LearningAndroid</string>
+    <string name="app_name">sCoolX</string>
 
-    <string name="title_activity_main">Schulfächer</string>
+    <string name="title_activity_main">sCoolX</string>
 
     <string name="hint_newsubject">Neues Fach..</string>
     <string name="button_save">Speichern</string>
     <string name="title_activity_newsubject">Neues Fach</string>
+    <string name="menu_subject_delete">Löschen</string>
+    <string name="menu_subject_edit">Bearbeiten</string>
 </resources>

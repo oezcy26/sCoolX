@@ -7,8 +7,12 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -25,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String RESULT_NEWSUBJECT = "ch.oezcy.learningApp.newsubjReply";
 
     private TableLayout table_subject;
+    private ListView listView_subject;
     public static SchoolXDatabase db;
 
     @Override
@@ -62,6 +67,12 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        // test data
+        Subject s1 = new Subject("Französisch");
+        Subject s2 = new Subject("Mathematik");
+
+
+
 
     }
 
@@ -73,9 +84,22 @@ public class MainActivity extends AppCompatActivity {
             String newSubjectName = data.getStringExtra(RESULT_NEWSUBJECT);
             Subject subj = new Subject(newSubjectName);
             addNewTablerow(subj);
+            addNewListItem(subj);
             new SubjectInserter().execute(new Subject(newSubjectName));
 
         }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.subject_contextmenu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        return super.onContextItemSelected(item);
     }
 
     private void startNewSubjectActivity(){
@@ -87,7 +111,14 @@ public class MainActivity extends AppCompatActivity {
     private void addNewTablerow(Subject subject) {
         TableRow tableRow = (TableRow) LayoutInflater.from(this).inflate(R.layout.tablerow_subject, null);
         ((TextView)tableRow.findViewById(R.id.tablerow_subject_name)).setText(subject.title);
+        registerForContextMenu(tableRow);
+        tableRow.setTag(subject);
         table_subject.addView(tableRow);
+
+
+    }
+
+    private void addNewListItem(Subject subj) {
 
     }
 

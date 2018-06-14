@@ -9,7 +9,7 @@
 
     tools:showIn="@layout/activity_main">
 
-    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <TableLayout
         android:id="@+id/table_subject"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,5 +18,12 @@
 
 
     </TableLayout>
+
+    <ListView
+        android:id="@+id/list_subject"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ListView>
 
 </android.support.constraint.ConstraintLayout>
