@@ -1,6 +1,7 @@
 package ch.oezcy.learningandroid.db.dao;
 
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
@@ -16,5 +17,8 @@ public interface SubjectDao {
 
     @Insert
     void insert(Subject subj);
+
+    @Delete
+    void delete(Subject subj);
 
 }

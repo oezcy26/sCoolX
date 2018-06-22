@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TableLayout table_subject;
     public static SchoolXDatabase db;
+    private Subject contextSubject; // object of longclick
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             List<Subject> subjects = new SubjectAllSelector().execute().get();
-            for(Subject s : subjects){
-                addNewTablerow(s);
-            }
+            addSubjectsToView(subjects);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -68,6 +67,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void addSubjectsToView(List<Subject> subjects) {
+        table_subject.removeAllViews();
+        for(Subject s : subjects){
+            addNewTablerow(s);
+        }
+    }
+
+
+    private void addNewTablerow(Subject subject) {
+        TableRow tableRow = (TableRow) LayoutInflater.from(this).inflate(R.layout.tablerow_subject, null);
+        ((TextView)tableRow.findViewById(R.id.tablerow_subject_name)).setText(subject.title);
+        tableRow.setTag(subject);
+        registerForContextMenu(tableRow);
+        table_subject.addView(tableRow);
+
+    }
+
+    /**
+        When returning from another Activity with result
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -81,18 +100,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Methods implementing contextmenu
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.subject_contextmenu, menu);
+        contextSubject = (Subject)v.getTag();
 
         //TODO getTag from v , then store as field-variable to get in onContextItemSelected (unten). dort dann löschen
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        return super.onContextItemSelected(item);
+        switch (item.getItemId()){
+            case R.id.ctx_subject_delete:
+                deleteSubject(contextSubject);
+                return true;
+        }
+        return false;
+
+    }
+
+    private void deleteSubject(Subject contextSubject) {
+        try {
+            List<Subject> subjects = new SubjectDeleter().execute(contextSubject).get();
+            addSubjectsToView(subjects);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void startNewSubjectActivity(){
@@ -101,13 +142,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void addNewTablerow(Subject subject) {
-        TableRow tableRow = (TableRow) LayoutInflater.from(this).inflate(R.layout.tablerow_subject, null);
-        ((TextView)tableRow.findViewById(R.id.tablerow_subject_name)).setText(subject.title);
-        tableRow.setTag(subject);
-        registerForContextMenu(tableRow);
-        table_subject.addView(tableRow);
-
+    public void logSubjects(View v){
+        try {
+            List<Subject> subjects = new SubjectAllSelector().execute().get();
+            for(Subject s : subjects){
+                System.out.println();
+                System.out.println(s);
+                System.out.println();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     private class SubjectInserter extends AsyncTask<Subject, Void, Void>{
@@ -125,6 +172,16 @@ public class MainActivity extends AppCompatActivity {
         protected List<Subject> doInBackground(Void... voids) {
             List<Subject> subjects = db.subjectDao().selectAllSubjects();
             return subjects;
+        }
+    }
+
+    private class SubjectDeleter extends AsyncTask<Subject, Void, List<Subject>> {
+
+        @Override
+        protected List<Subject> doInBackground(Subject... subjects) {
+            db.subjectDao().delete(subjects[0]);
+            List<Subject> newSubj = db.subjectDao().selectAllSubjects();
+            return newSubj;
         }
     }
 

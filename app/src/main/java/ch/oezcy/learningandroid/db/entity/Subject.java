@@ -21,4 +21,8 @@ public class Subject {
         this.average = 0.0;
     }
 
+    @Override
+    public String toString() {
+        return title + " " + average;
+    }
 }
