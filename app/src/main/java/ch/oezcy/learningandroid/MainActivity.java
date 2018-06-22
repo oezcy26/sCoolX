@@ -12,13 +12,16 @@ import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TableLayout;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import ch.oezcy.learningandroid.adapter.SubjectAdapter;
 import ch.oezcy.learningandroid.db.SchoolXDatabase;
 import ch.oezcy.learningandroid.db.entity.Subject;
 
@@ -27,9 +30,9 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_NEWSUBJECT = 1;
     public static final String RESULT_NEWSUBJECT = "ch.oezcy.learningApp.newsubjReply";
 
-    private TableLayout table_subject;
+    private ListView listView;
     public static SchoolXDatabase db;
-    private Subject contextSubject; // object of longclick
+    private SubjectAdapter subjectsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,47 +45,23 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        table_subject = findViewById(R.id.table_subject);
+        listView = findViewById(R.id.listview_subjects);
         FloatingActionButton fab = findViewById(R.id.fab);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               startNewSubjectActivity();
-               /* Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                        */
-            }
-        });
-
+        List<Subject> subjects = new ArrayList<>();
         try {
-            List<Subject> subjects = new SubjectAllSelector().execute().get();
-            addSubjectsToView(subjects);
+            subjects = new SubjectAllSelector().execute().get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
 
-
+        subjectsAdapter = new SubjectAdapter(this,subjects);
+        listView.setAdapter(subjectsAdapter);
+        registerForContextMenu(listView);
     }
 
-    private void addSubjectsToView(List<Subject> subjects) {
-        table_subject.removeAllViews();
-        for(Subject s : subjects){
-            addNewTablerow(s);
-        }
-    }
-
-
-    private void addNewTablerow(Subject subject) {
-        TableRow tableRow = (TableRow) LayoutInflater.from(this).inflate(R.layout.tablerow_subject, null);
-        ((TextView)tableRow.findViewById(R.id.tablerow_subject_name)).setText(subject.title);
-        tableRow.setTag(subject);
-        registerForContextMenu(tableRow);
-        table_subject.addView(tableRow);
-
-    }
 
     /**
         When returning from another Activity with result
@@ -94,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode == REQUEST_NEWSUBJECT && resultCode==RESULT_OK){
             String newSubjectName = data.getStringExtra(RESULT_NEWSUBJECT);
             Subject subj = new Subject(newSubjectName);
-            addNewTablerow(subj);
+            subjectsAdapter.add(subj);
+            //addNewListitem(subj);
             new SubjectInserter().execute(new Subject(newSubjectName));
 
         }
@@ -108,33 +88,28 @@ public class MainActivity extends AppCompatActivity {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.subject_contextmenu, menu);
-        contextSubject = (Subject)v.getTag();
-
-        //TODO getTag from v , then store as field-variable to get in onContextItemSelected (unten). dort dann löschen
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        Subject subj = subjectsAdapter.getItem(info.position);
+
         switch (item.getItemId()){
             case R.id.ctx_subject_delete:
-                deleteSubject(contextSubject);
+                subjectsAdapter.remove(subj);
+                new SubjectDeleter().execute(subj);
                 return true;
         }
         return false;
 
     }
 
-    private void deleteSubject(Subject contextSubject) {
-        try {
-            List<Subject> subjects = new SubjectDeleter().execute(contextSubject).get();
-            addSubjectsToView(subjects);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
+    public void onFloatingABClicked(View v){
+        startNewSubjectActivity();
     }
+
 
     private void startNewSubjectActivity(){
         Intent intent = new Intent(this, NewSubjectActivity.class);

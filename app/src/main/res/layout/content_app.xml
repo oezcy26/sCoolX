@@ -9,16 +9,14 @@
 
     tools:showIn="@layout/activity_main">
 
-    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/table_subject"
+    <ListView
+        android:id="@+id/listview_subjects"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:stretchColumns="0"
-        android:shrinkColumns="0">
+        android:divider="@color/colorAccent"
+        android:dividerHeight="1dip"/>
 
-
-    </TableLayout>
-
+    <!--
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,5 +28,6 @@
         app:layout_constraintStart_toStartOf="parent"
         android:onClick="logSubjects"
         />
+        -->
 
 </android.support.constraint.ConstraintLayout>
