@@ -8,14 +8,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TableRow;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +24,13 @@ import ch.oezcy.learningandroid.db.entity.Subject;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int REQUEST_NEWSUBJECT = 1;
-    public static final String RESULT_NEWSUBJECT = "ch.oezcy.learningApp.newsubjReply";
+    public static final int FORRESULT_NEWSUBJECT = 1;
+    public static final int FORRESULT_NEWEXAM = 2;
+
+    public static final String EXTRA_NEWSUBJECT_TITLE = "ch.oezcy.learningApp.newsubjReply";
+    public static final String EXTRA_SUBJECT_ID = "ch.oezcy.learningApp.extra_Subjectid";
+    public static final String EXTRA_NEWEXAM_TITLE = "ch.oezcy.learningapp.newaxamTitle";
+    public static final String EXTRA_NEWEXAM_NOTE = "ch.oezcy.learningapp.newexamnote";
 
     private ListView listView;
     public static SchoolXDatabase db;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.listview_subjects);
         FloatingActionButton fab = findViewById(R.id.fab);
+        registerForContextMenu(fab);
 
         List<Subject> subjects = new ArrayList<>();
         try {
@@ -59,7 +62,17 @@ public class MainActivity extends AppCompatActivity {
 
         subjectsAdapter = new SubjectAdapter(this,subjects);
         listView.setAdapter(subjectsAdapter);
+
+        //context menu for listview
         registerForContextMenu(listView);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Subject clickedSubject = subjectsAdapter.getItem(position);
+                startExamsActivity(clickedSubject.id);
+            }
+        });
     }
 
 
@@ -70,13 +83,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == REQUEST_NEWSUBJECT && resultCode==RESULT_OK){
-            String newSubjectName = data.getStringExtra(RESULT_NEWSUBJECT);
+        if(requestCode == FORRESULT_NEWSUBJECT && resultCode==RESULT_OK){
+            String newSubjectName = data.getStringExtra(EXTRA_NEWSUBJECT_TITLE);
             Subject subj = new Subject(newSubjectName);
+            try {
+                int newId = new SubjectInserter().execute(new Subject(newSubjectName)).get();
+                // id must set to be able search for exams, when ExamsActivity is started.
+                subj.id = newId;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
             subjectsAdapter.add(subj);
-            //addNewListitem(subj);
-            new SubjectInserter().execute(new Subject(newSubjectName));
-
         }
     }
 
@@ -85,14 +104,14 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.subject_contextmenu, menu);
+        if(v instanceof ListView){
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.subject_contextmenu, menu);
+        }
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
         Subject subj = subjectsAdapter.getItem(info.position);
 
@@ -103,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
         }
         return false;
-
     }
 
     public void onFloatingABClicked(View v){
@@ -113,8 +131,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void startNewSubjectActivity(){
         Intent intent = new Intent(this, NewSubjectActivity.class);
-        startActivityForResult(intent, REQUEST_NEWSUBJECT);
+        startActivityForResult(intent, FORRESULT_NEWSUBJECT);
+    }
 
+    private void startExamsActivity(int subjectId){
+        Intent intent = new Intent(this, ExamsActivity.class);
+        intent.putExtra(EXTRA_SUBJECT_ID, subjectId);
+        startActivity(intent);
     }
 
     public void logSubjects(View v){
@@ -132,13 +155,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class SubjectInserter extends AsyncTask<Subject, Void, Void>{
+    private class SubjectInserter extends AsyncTask<Subject, Void, Integer>{
+
+        private Subject subj;
 
         @Override
-        protected Void doInBackground(Subject... subjects) {
-            db.subjectDao().insert(subjects[0]);
-            return null;
+        protected Integer doInBackground(Subject... subjects) {
+            subj = subjects[0];
+            long newId = db.subjectDao().insert(subj);
+            return (int)newId;
         }
+
     }
 
     private class SubjectAllSelector extends AsyncTask<Void, Void, List<Subject>>{

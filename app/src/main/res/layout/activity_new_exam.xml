@@ -4,17 +4,29 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/edit_newsubject"
+        android:id="@+id/edit_newexam"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
-        android:hint="@string/hint_newsubject"
+        android:hint="@string/hint_newexam"
         android:inputType="textAutoComplete"
         android:padding="5dip"
         android:layout_marginBottom="5dip"
         android:layout_marginTop="5dip"
         android:textSize="18sp"
         />
+
+    <EditText
+        android:id="@+id/edit_examnote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:hint="@string/hint_examnote"
+        android:inputType="numberDecimal"
+        android:padding="5dip"
+        android:layout_marginBottom="5dip"
+        android:layout_marginTop="5dip"
+        android:textSize="18sp"/>
 
     <Button
         android:id="@+id/button_save_exam"

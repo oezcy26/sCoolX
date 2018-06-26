@@ -7,17 +7,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class NewSubjectActivity extends AppCompatActivity {
+public class NewExamActivity extends AppCompatActivity {
 
-
-    private EditText editNewSubject;
+    private EditText editNewExam;
+    private EditText editExamNote;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_subject);
+        setContentView(R.layout.activity_new_exam);
 
-        editNewSubject = findViewById(R.id.edit_newsubject);
+        editNewExam = findViewById(R.id.edit_newexam);
+        editExamNote = findViewById(R.id.edit_examnote);
 
         final Button button = findViewById(R.id.button_save_exam);
 
@@ -27,8 +28,11 @@ public class NewSubjectActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent replyIntent = new Intent();
 
-                String newSubjText = editNewSubject.getText().toString();
-                replyIntent.putExtra(MainActivity.EXTRA_NEWSUBJECT_TITLE, newSubjText);
+                String newExamText = editNewExam.getText().toString();
+                double newExamNote = Double.parseDouble(editExamNote.getText().toString());
+
+                replyIntent.putExtra(MainActivity.EXTRA_NEWEXAM_TITLE, newExamText);
+                replyIntent.putExtra(MainActivity.EXTRA_NEWEXAM_NOTE, newExamNote);
                 setResult(RESULT_OK, replyIntent);
 
                 finish();

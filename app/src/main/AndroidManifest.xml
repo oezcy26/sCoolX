@@ -21,8 +21,13 @@
         </activity>
         <activity
             android:name=".NewSubjectActivity"
-            android:label="@string/title_activity_newsubject"
-            ></activity>
+            android:label="@string/title_activity_newsubject" />
+        <activity
+            android:name=".ExamsActivity"
+            android:label="@string/title_activity_new_exam"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".NewExamActivity"
+            android:label="@string/hint_newexam"></activity>
     </application>
 
 </manifest>

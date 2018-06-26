@@ -15,10 +15,15 @@ public interface SubjectDao {
     @Query("SELECT * FROM subject")
     List<Subject> selectAllSubjects();
 
+    @Query("SELECT * FROM subject where id = :id")
+    Subject selectSubjectById(int id);
+
     @Insert
-    void insert(Subject subj);
+    long insert(Subject subj);
 
     @Delete
     void delete(Subject subj);
+
+
 
 }

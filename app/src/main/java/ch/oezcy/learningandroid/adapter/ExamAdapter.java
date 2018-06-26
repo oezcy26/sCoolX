@@ -12,19 +12,19 @@ import android.widget.TextView;
 import java.util.List;
 
 import ch.oezcy.learningandroid.R;
-import ch.oezcy.learningandroid.db.entity.Subject;
+import ch.oezcy.learningandroid.db.entity.Exam;
 
-public class SubjectAdapter extends ArrayAdapter<Subject> {
+public class ExamAdapter extends ArrayAdapter<Exam> {
 
-    public SubjectAdapter(Context ctx, List<Subject> subjects){
-        super(ctx, 0, subjects);
+    public ExamAdapter(Context ctx, List<Exam> exams){
+        super(ctx, 0, exams);
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         // get data for this position
-        Subject subject = getItem(position);
+        Exam exam = getItem(position);
 
         //Check if view there is view to reuse, otherwise inflate
         if(convertView == null){
@@ -35,8 +35,8 @@ public class SubjectAdapter extends ArrayAdapter<Subject> {
         TextView subjectName = convertView.findViewById(R.id.listitem_name);
         TextView subjectAvg = convertView.findViewById(R.id.listitem_note);
 
-        subjectName.setText(subject.title);
-        subjectAvg.setText(String.valueOf(subject.average));
+        subjectName.setText(exam.title);
+        subjectAvg.setText(String.valueOf(exam.note));
 
         return convertView;
     }
