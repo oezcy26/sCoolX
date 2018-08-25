@@ -36,7 +36,8 @@ public class SubjectAdapter extends ArrayAdapter<Subject> {
         TextView subjectAvg = convertView.findViewById(R.id.listitem_note);
 
         subjectName.setText(subject.title);
-        subjectAvg.setText(String.valueOf(subject.average));
+        //subjectAvg.setText(String.valueOf(subject.average));
+        subjectAvg.setText(String.format( "%.2f", subject.average ));
 
         return convertView;
     }

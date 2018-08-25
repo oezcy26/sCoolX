@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -65,14 +66,42 @@ public class ExamsActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == FORRESULT_NEWEXAM && resultCode == RESULT_OK){
+            //insert new exam
             String examTitle = data.getStringExtra(EXTRA_NEWEXAM_TITLE);
             double examNote = data.getDoubleExtra(EXTRA_NEWEXAM_NOTE, 0.0);
 
             Exam newExam = new Exam(subject.id, examTitle, examNote);
             examAdapter.add(newExam);
             new ExamInserter().execute(newExam);
+
+            //updated subjects average
+            updateSubjectAverage();
+
         }
     }
+
+    private void updateSubjectAverage() {
+        List<Exam> allExams = new ArrayList<>();
+        for(int i=0; i < examAdapter.getCount(); i++){
+            allExams.add(examAdapter.getItem(i));
+        }
+
+        //sum up all notes
+        double sumOfNotes = 0;
+        for(Exam e : allExams){
+            sumOfNotes += e.note;
+        }
+
+        //calculate average
+        double average = sumOfNotes / (double)examAdapter.getCount();
+        subject.average = average;
+
+        System.out.println("CALCULATED AVERGE FOR SUBJECT " + subject.title + " : " + subject.average);
+
+        new SubjectAverageUpdater().execute(subject);
+
+    }
+
 
 
 
@@ -98,6 +127,14 @@ public class ExamsActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Exam... exams) {
             db.examDao().insert(exams[0]);
+            return null;
+        }
+    }
+
+    private class SubjectAverageUpdater extends AsyncTask<Subject, Void, Void>{
+        @Override
+        protected Void doInBackground(Subject... subjects) {
+            db.subjectDao().update(subjects[0]);
             return null;
         }
     }

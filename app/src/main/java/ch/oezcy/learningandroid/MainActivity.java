@@ -75,6 +75,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        List<Subject> subjects = new ArrayList<>();
+        try {
+            subjects = new SubjectAllSelector().execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        subjectsAdapter.clear();
+        subjectsAdapter.addAll(subjects);
+
+    }
 
     /**
         When returning from another Activity with result

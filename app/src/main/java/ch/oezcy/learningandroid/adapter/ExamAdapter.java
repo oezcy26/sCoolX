@@ -38,6 +38,8 @@ public class ExamAdapter extends ArrayAdapter<Exam> {
         subjectName.setText(exam.title);
         subjectAvg.setText(String.valueOf(exam.note));
 
+
         return convertView;
     }
+
 }
