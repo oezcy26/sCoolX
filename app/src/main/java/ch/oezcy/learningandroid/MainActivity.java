@@ -156,12 +156,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class SubjectInserter extends AsyncTask<Subject, Void, Integer>{
-
-        private Subject subj;
-
         @Override
         protected Integer doInBackground(Subject... subjects) {
-            subj = subjects[0];
+            Subject subj = subjects[0];
             long newId = db.subjectDao().insert(subj);
             return (int)newId;
         }
@@ -169,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class SubjectAllSelector extends AsyncTask<Void, Void, List<Subject>>{
-
         @Override
         protected List<Subject> doInBackground(Void... voids) {
             List<Subject> subjects = db.subjectDao().selectAllSubjects();
@@ -177,13 +173,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class SubjectDeleter extends AsyncTask<Subject, Void, List<Subject>> {
-
+    private class SubjectDeleter extends AsyncTask<Subject, Void, Void> {
         @Override
-        protected List<Subject> doInBackground(Subject... subjects) {
+        protected Void doInBackground(Subject... subjects) {
             db.subjectDao().delete(subjects[0]);
-            List<Subject> newSubj = db.subjectDao().selectAllSubjects();
-            return newSubj;
+            return null;
         }
     }
 

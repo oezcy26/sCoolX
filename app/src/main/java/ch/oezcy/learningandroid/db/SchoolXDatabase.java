@@ -8,7 +8,7 @@ import ch.oezcy.learningandroid.db.dao.SubjectDao;
 import ch.oezcy.learningandroid.db.entity.Exam;
 import ch.oezcy.learningandroid.db.entity.Subject;
 
-@Database(entities = {Subject.class, Exam.class}, version = 1)
+@Database(entities = {Subject.class, Exam.class}, version = 2)
 public abstract class SchoolXDatabase extends RoomDatabase {
     public abstract SubjectDao subjectDao();
     public abstract ExamDao examDao();
